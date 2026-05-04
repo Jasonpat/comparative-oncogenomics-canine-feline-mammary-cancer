@@ -13,7 +13,7 @@ The pipeline was developed to identify conserved oncogenic programs and conserve
 The primary analysis identifies:
 
 - directionally conserved Hallmark programs across species;
-- a strict conserved UP-regulated target core;
+- a strict conserved upregulated target core;
 - druggability and clinical-candidate evidence for conserved targets;
 - integrated drug-level and probe-linked indication evidence;
 - a consensus-prioritised target shortlist;
