@@ -57,7 +57,7 @@ The primary analysis identifies:
 
 ## Data availability and required input files
 
-Raw input files are not included in this repository because of file size and/or data-licensing constraints. The canine transcriptome dataset is derived from GEO accession `GSE119810`. Feline input gene lists should be provided as curated UP- and DOWN-regulated gene lists matching the manuscript analysis.
+Raw input files are not included in this repository because of file size and/or data-licensing constraints. The canine transcriptome dataset is derived from GEO accession `GSE119810`. The feline upregulated and downregulated gene lists were curated from published feline mammary cancer study cited in the manuscript. These literature-derived gene signatures constitute the feline input for the comparative analysis.
 
 The primary pipeline expects the following files under `data/`:
 
@@ -191,7 +191,7 @@ results/DOG_down_leadingEdge_ENSG.txt
 
 ### Step 2 — Cat gene-list mapping and Hallmark ORA
 
-Feline UP- and DOWN-regulated gene lists are mapped to human gene symbols. The ORA universe is fixed as the intersection between the canine-derived human ortholog universe and MSigDB Hallmark genes.
+Feline upregulated and downregulated gene lists are mapped to human gene symbols. The ORA universe is fixed as the intersection between the canine-derived human ortholog universe and MSigDB Hallmark genes.
 
 Hallmark ORA is performed using `clusterProfiler::enricher()`.
 
@@ -237,7 +237,7 @@ results/CONSERVED_HALLMARKS_strict_summary.csv
 
 ### Step 5 — Druggability and clinical-candidate annotation
 
-Conserved UP-core targets are queried against the Open Targets Platform GraphQL API. The module retrieves target-level drug/clinical-candidate evidence and tractability annotations, then queries ChEMBL for ATC classifications when drug identifiers are available.
+Conserved upregulated core targets are queried against the Open Targets Platform GraphQL API. The module retrieves target-level drug/clinical-candidate evidence and tractability annotations, then queries ChEMBL for ATC classifications when drug identifiers are available.
 
 The pipeline uses the current Open Targets GraphQL `target(ensemblId: ...)` query with the `drugAndClinicalCandidates` and `tractability` fields. Because Open Targets is a live resource and its API schema may change over time, raw JSON responses are cached locally.
 
@@ -608,6 +608,13 @@ Check that `PATH_CONFIG$tcga_dir` points to the local folder containing download
 This repository is released under the MIT License. See `LICENSE` for details.
 
 The license applies to the code in this repository. It does not apply to third-party datasets or downloaded database files.
+
+## Code availability
+
+The source code for this pipeline is available at:
+
+https://github.com/Jasonpat/comparative-oncogenomics-canine-feline-mammary-cancer
+
 
 ## Citation
 
