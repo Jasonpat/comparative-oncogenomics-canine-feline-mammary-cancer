@@ -2,7 +2,7 @@
 
 ![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-[![DOI](https://zenodo.org/badge/DOI/pending.svg)]()
+![DOI](https://img.shields.io/badge/DOI-pending-lightgrey)
 
 This repository contains a standalone, reproducible R pipeline for comparative oncogenomic analysis of canine and feline mammary cancer. The workflow integrates canine transcriptome analysis, feline mammary cancer gene signatures, ortholog mapping into a common human reference space, conserved Hallmark pathway analysis, Open Targets/ChEMBL translational annotation, drug-level/probe-linked indication expansion, target prioritisation, and optional validation analyses.
 
@@ -611,4 +611,4 @@ The license applies to the code in this repository. It does not apply to third-p
 
 ## Citation
 
-Patergiannakis IS, Pappas IS. Comparative oncogenomics of canine and feline mammary cancer reveals a conserved and tractable oncogenic core with human breast cancer concordance. [Journal], [Year]. DOI: pending.
+Patergiannakis I.-S., Pappas IS. Comparative oncogenomics of canine and feline mammary cancer reveals a conserved and tractable oncogenic core with human breast cancer concordance. [Journal], 2026. DOI: pending.
