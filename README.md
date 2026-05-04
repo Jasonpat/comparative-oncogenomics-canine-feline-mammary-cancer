@@ -613,7 +613,7 @@ The license applies to the code in this repository. It does not apply to third-p
 
 The source code for this pipeline is available at:
 
-https://github.com/VETPharmTox-UTH/comparative-oncogenomics-canine-feline-mammary-cancer
+https://github.com/Jasonpat/comparative-oncogenomics-canine-feline-mammary-cancer
 
 ## Citation
 
