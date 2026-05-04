@@ -1,0 +1,73 @@
+# ======================================================================
+# Local data and generated outputs
+# ======================================================================
+
+data/
+results/
+cache/
+
+# TCGA / GEO / downloaded datasets
+TCGA*/
+GDC*/
+GEO*/
+*.tsv
+*.tsv.gz
+*.fastq
+*.fastq.gz
+*.bam
+*.bai
+
+# Large R objects / cached analysis files
+*.rds
+*.RDS
+*.rda
+*.RData
+
+# Except optional small reproducibility objects if you intentionally add them
+# !example_file.rds
+
+# ======================================================================
+# R / RStudio
+# ======================================================================
+
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rproj
+
+# ======================================================================
+# Logs and temporary files
+# ======================================================================
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# ======================================================================
+# Figures / generated manuscript outputs
+# Keep these ignored unless you intentionally want to version selected figures
+# ======================================================================
+
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.tiff
+*.svg
+
+# If you want to include selected manuscript-ready figures, put them in a
+# dedicated folder and remove that folder from this ignore list manually.
+
+# ======================================================================
+# Package / system files
+# ======================================================================
+
+renv/
+packrat/
+.Renviron
+.Rprofile
