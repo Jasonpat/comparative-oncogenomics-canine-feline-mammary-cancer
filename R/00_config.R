@@ -7,13 +7,20 @@
 # ==============================================================================
 # PROJECT ROOT
 # ==============================================================================
-if (!exists("PROJECT_ROOT", envir = .GlobalEnv)) {
-  PROJECT_ROOT <- normalizePath(getwd(), winslash = "/", mustWork = FALSE)
-  assign("PROJECT_ROOT", PROJECT_ROOT, envir = .GlobalEnv)
+
+PROJECT_ROOT <- normalizePath(getwd(), winslash = "/", mustWork = FALSE)
+
+# If the working directory is accidentally set to the R/ folder,
+# move one level up to the actual project root.
+if (basename(PROJECT_ROOT) == "R") {
+  PROJECT_ROOT <- dirname(PROJECT_ROOT)
 }
 
-.path <- function(...) normalizePath(file.path(PROJECT_ROOT, ...), winslash = "/", mustWork = FALSE)
+assign("PROJECT_ROOT", PROJECT_ROOT, envir = .GlobalEnv)
 
+.path <- function(...) {
+  normalizePath(file.path(PROJECT_ROOT, ...), winslash = "/", mustWork = FALSE)
+}
 # ==============================================================================
 # PACKAGE GROUPS
 # ==============================================================================
@@ -39,6 +46,7 @@ CORE_PACKAGES <- c(
 # Optional packages are checked only when the corresponding optional module is enabled.
 OPTIONAL_PACKAGES_NETWORK <- c("igraph", "STRINGdb")
 OPTIONAL_PACKAGES_TCGA <- c("TCGAbiolinks", "edgeR", "ggrepel")
+OPTIONAL_PACKAGES_TCGA_SIGNATURE <- c("TCGAbiolinks", "edgeR", "GSVA", "survival", "survminer")
 
 check_required_packages <- function(pkgs) {
   missing_pkgs <- pkgs[!vapply(pkgs, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
@@ -109,7 +117,7 @@ EXECUTION_CONFIG <- list(
 
   # Optional sensitivity analysis comparing primary target-level evidence with
   # the integrated Step 5B evidence layer.
-  run_sensitivity_prioritisation = FALSE,
+  run_sensitivity_prioritisation = TRUE,
 
   run_step7_outputs = TRUE,
 
@@ -122,7 +130,12 @@ EXECUTION_CONFIG <- list(
   run_validation_background_light = FALSE,
   run_validation_permutation = FALSE,
   run_validation_network = FALSE,
-  run_validation_tcga_brca = FALSE
+  run_validation_tcga_brca = FALSE,
+
+  # Optional TCGA-BRCA patient-level validation layer
+  # Runs ssGSEA scoring of the strict conserved UP-core, PAM50 subtype
+  # association, and Kaplan-Meier OS visualisation. Cox models are not run.
+  run_validation_tcga_signature = FALSE
 )
 
 # ==============================================================================
@@ -188,6 +201,7 @@ REPRODUCIBILITY_CONFIG <- list(
   required_packages = CORE_PACKAGES,
   optional_packages_network = OPTIONAL_PACKAGES_NETWORK,
   optional_packages_tcga = OPTIONAL_PACKAGES_TCGA,
+  optional_packages_tcga_signature = OPTIONAL_PACKAGES_TCGA_SIGNATURE,
 
   # Contact and citation
   authors = "Iason-Spyridon Patergiannakis; Ioannis S. Pappas",
@@ -242,7 +256,9 @@ COMPONENT_DESCRIPTIONS <- list(
   step7 = "Generation of final summary tables and reports",
   step8 = "Figure 1 panels: conserved Hallmark programs",
   step9 = "Figure 2 and Table 1: gene-level overlap support metrics",
-  step10 = "Figure 3: target prioritisation and translational landscape"
+  step10 = "Figure 3: target prioritisation and translational landscape",
+  tcga_concordance = "Optional TCGA-BRCA tumour-vs-normal concordance validation and Figure 4",
+  tcga_signature = "Optional TCGA-BRCA patient-level ssGSEA, PAM50 subtype association, and Kaplan-Meier OS visualisation without Cox models"
 )
 
 # ==============================================================================
@@ -367,6 +383,10 @@ check_input_files()
 
 if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_brca)) {
   check_required_packages(OPTIONAL_PACKAGES_TCGA)
+}
+
+if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_signature)) {
+  check_required_packages(OPTIONAL_PACKAGES_TCGA_SIGNATURE)
 }
 
 if (isTRUE(EXECUTION_CONFIG$run_validation_network)) {

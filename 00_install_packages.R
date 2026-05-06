@@ -27,13 +27,16 @@ core_bioc_pkgs <- c(
 
 optional_cran_pkgs <- c(
   "igraph",
-  "ggrepel"
+  "ggrepel",
+  "survival",
+  "survminer"
 )
 
 optional_bioc_pkgs <- c(
   "STRINGdb",
   "edgeR",
-  "TCGAbiolinks"
+  "TCGAbiolinks",
+  "GSVA"
 )
 
 install_if_missing_cran <- function(pkgs) {
@@ -65,7 +68,7 @@ install_core_packages <- function() {
 install_optional_packages <- function() {
   install_if_missing_cran(optional_cran_pkgs)
   install_if_missing_bioc(optional_bioc_pkgs)
-  cat("Optional network/TCGA packages installed/available.\n")
+  cat("Optional network/TCGA/patient-level validation packages installed/available.\n")
   invisible(TRUE)
 }
 
@@ -79,7 +82,7 @@ install_all_packages <- function() {
 # Default behaviour when sourcing this file: install the main pipeline dependencies.
 install_core_packages()
 
-cat("\nTo install optional network and TCGA validation dependencies, run:\n")
+cat("\nTo install optional network, TCGA and patient-level validation dependencies, run:\n")
 cat("  install_optional_packages()\n")
 cat("\nTo install everything at once, run:\n")
 cat("  install_all_packages()\n")

@@ -2,7 +2,7 @@
 
 ![R](https://img.shields.io/badge/R-%E2%89%A54.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![DOI](https://img.shields.io/badge/DOI-pending-lightgrey)
+[![DOI](https://zenodo.org/badge/DOI/pending.svg)]()
 
 This repository contains a standalone, reproducible R pipeline for comparative oncogenomic analysis of canine and feline mammary cancer. The workflow integrates canine transcriptome analysis, feline mammary cancer gene signatures, ortholog mapping into a common human reference space, conserved Hallmark pathway analysis, Open Targets/ChEMBL translational annotation, drug-level/probe-linked indication expansion, target prioritisation, and optional validation analyses.
 
@@ -13,13 +13,14 @@ The pipeline was developed to identify conserved oncogenic programs and conserve
 The primary analysis identifies:
 
 - directionally conserved Hallmark programs across species;
-- a strict conserved upregulated target core;
+- a strict conserved UP-regulated target core;
 - druggability and clinical-candidate evidence for conserved targets;
 - integrated drug-level and probe-linked indication evidence;
 - a consensus-prioritised target shortlist;
 - translational evidence tiers;
 - optional network-context validation using STRING;
-- optional human external concordance using TCGA-BRCA.
+- optional human external concordance using TCGA-BRCA;
+- optional patient-level TCGA-BRCA conserved-core signature scoring, PAM50 subtype association, and Kaplan-Meier OS visualization.
 
 ## Repository structure
 
@@ -48,7 +49,9 @@ The primary analysis identifies:
 │   ├── 11b_permutation_validation_light.R
 │   ├── 13_network_validation_prioritised_targets.R
 │   ├── 14_module_tcga_brca_external_concordance.R
-│   └── 15_figure4_tcga_brca_concordance.R
+│   ├── 15_figure4_tcga_brca_concordance.R
+│   ├── 16_module_tcga_main_clean.R
+│   └── 17_figure5_tcga_survival_signature_validation_FINAL_v2.R
 ├── data/
 ├── cache/
 ├── results/
@@ -57,7 +60,7 @@ The primary analysis identifies:
 
 ## Data availability and required input files
 
-Raw input files are not included in this repository because of file size and/or data-licensing constraints. The canine transcriptome dataset is derived from GEO accession `GSE119810`. The feline upregulated and downregulated gene lists were curated from published feline mammary cancer study cited in the manuscript. These literature-derived gene signatures constitute the feline input for the comparative analysis.
+Raw input files are not included in this repository because of file size and/or data-licensing constraints. The canine transcriptome dataset is derived from GEO accession `GSE119810`. Feline input gene lists should be provided as curated UP- and DOWN-regulated gene lists matching the manuscript analysis.
 
 The primary pipeline expects the following files under `data/`:
 
@@ -107,6 +110,8 @@ Optional CRAN packages:
 ```r
 igraph
 ggrepel
+survival
+survminer
 ```
 
 Optional Bioconductor packages:
@@ -115,6 +120,7 @@ Optional Bioconductor packages:
 STRINGdb
 edgeR
 TCGAbiolinks
+GSVA
 ```
 
 To install the main pipeline dependencies, run:
@@ -191,7 +197,7 @@ results/DOG_down_leadingEdge_ENSG.txt
 
 ### Step 2 — Cat gene-list mapping and Hallmark ORA
 
-Feline upregulated and downregulated gene lists are mapped to human gene symbols. The ORA universe is fixed as the intersection between the canine-derived human ortholog universe and MSigDB Hallmark genes.
+Feline UP- and DOWN-regulated gene lists are mapped to human gene symbols. The ORA universe is fixed as the intersection between the canine-derived human ortholog universe and MSigDB Hallmark genes.
 
 Hallmark ORA is performed using `clusterProfiler::enricher()`.
 
@@ -237,7 +243,7 @@ results/CONSERVED_HALLMARKS_strict_summary.csv
 
 ### Step 5 — Druggability and clinical-candidate annotation
 
-Conserved upregulated core targets are queried against the Open Targets Platform GraphQL API. The module retrieves target-level drug/clinical-candidate evidence and tractability annotations, then queries ChEMBL for ATC classifications when drug identifiers are available.
+Conserved UP-core targets are queried against the Open Targets Platform GraphQL API. The module retrieves target-level drug/clinical-candidate evidence and tractability annotations, then queries ChEMBL for ATC classifications when drug identifiers are available.
 
 The pipeline uses the current Open Targets GraphQL `target(ensemblId: ...)` query with the `drugAndClinicalCandidates` and `tractability` fields. Because Open Targets is a live resource and its API schema may change over time, raw JSON responses are cached locally.
 
@@ -502,6 +508,34 @@ results/FIG4_TCGA_B_sigconc_barplot.png
 results/FIG4_TCGA_summary.txt
 ```
 
+### TCGA-BRCA patient-level signature, PAM50 subtype, and survival visualization
+
+The patient-level TCGA-BRCA signature validation module uses locally downloaded GDC/TCGA-BRCA STAR-count files. Primary tumour samples are collapsed to one sample per patient, TMM + limma-voom normalized expression values are used to score the strict conserved UP-core by ssGSEA through GSVA, and patients with usable overall survival data are retained for Kaplan-Meier visualization using a median conserved-core ssGSEA split.
+
+PAM50 subtype associations are assessed using the Kruskal-Wallis test. This main-clean version intentionally does not run Cox proportional hazards models, PH assumption checks, secondary endpoint survival models, or individual target-level Cox models.
+
+Relevant modules:
+
+```text
+R/16_module_tcga_main_clean.R
+R/17_figure5_tcga_survival_signature_validation_FINAL_v2.R
+```
+
+Key outputs:
+
+```text
+results/SURVIVAL/TCGA_signature_dataset.csv
+results/SURVIVAL/TCGA_signature_gene_overlap.csv
+results/SURVIVAL/TCGA_stage_clean_qc.csv
+results/SURVIVAL/TCGA_KM_fit.rds
+results/SURVIVAL/TCGA_KM_summary.csv
+results/SURVIVAL/TCGA_subtype_score_association.csv
+results/SURVIVAL/TCGA_survival_method_parameters.csv
+results/SURVIVAL/TCGA_survival_summary.txt
+results/FIG5_panels/Figure5A_subtype_violin.png
+results/FIG5_panels/Figure5B_KM.png
+```
+
 ## Reproducibility notes
 
 The pipeline is designed to improve reproducibility through:
@@ -561,6 +595,11 @@ results/TCGA_BRCA_core_gene_results.csv
 results/TCGA_BRCA_concordance_summary.csv
 results/FIG4_TCGA_A_core_concordance_dotplot.png
 results/FIG4_TCGA_B_sigconc_barplot.png
+results/SURVIVAL/TCGA_signature_dataset.csv
+results/SURVIVAL/TCGA_KM_summary.csv
+results/SURVIVAL/TCGA_subtype_score_association.csv
+results/FIG5_panels/Figure5A_subtype_violin.png
+results/FIG5_panels/Figure5B_KM.png
 ```
 
 ## Troubleshooting
@@ -609,12 +648,6 @@ This repository is released under the MIT License. See `LICENSE` for details.
 
 The license applies to the code in this repository. It does not apply to third-party datasets or downloaded database files.
 
-## Code availability
-
-The source code for this pipeline is available at:
-
-https://github.com/Jasonpat/comparative-oncogenomics-canine-feline-mammary-cancer
-
 ## Citation
 
-Patergiannakis I.-S., Pappas IS. Comparative oncogenomics of canine and feline mammary cancer reveals a conserved and tractable oncogenic core with human breast cancer concordance. [Journal], 2026. DOI: pending.
+Patergiannakis IS, Pappas IS. Comparative oncogenomics of canine and feline mammary cancer reveals a conserved and tractable oncogenic core with human breast cancer concordance. [Journal], [Year]. DOI: pending.

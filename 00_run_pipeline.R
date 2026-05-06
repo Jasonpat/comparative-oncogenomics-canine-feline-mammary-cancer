@@ -78,6 +78,16 @@ if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_brca)) {
   source_pipeline_file("15_figure4_tcga_brca_concordance.R")
 }
 
+if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_signature)) {
+  OPTIONAL_PACKAGES_TCGA_SIGNATURE <- unique(c(
+    if (exists("OPTIONAL_PACKAGES_TCGA", envir = .GlobalEnv)) get("OPTIONAL_PACKAGES_TCGA", envir = .GlobalEnv) else character(),
+    "edgeR", "TCGAbiolinks", "GSVA", "survival", "survminer"
+  ))
+  check_required_packages(OPTIONAL_PACKAGES_TCGA_SIGNATURE)
+  source_pipeline_file("16_module_tcga_main_clean.R")
+  source_pipeline_file("17_figure5_tcga_survival_signature_validation_FINAL_v2.R")
+}
+
 # ==============================================================================
 # REQUIRED FUNCTION CHECK
 # ==============================================================================
@@ -318,6 +328,20 @@ if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_brca)) {
   )
 }
 
+if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_signature)) {
+  run_optional_step(
+    TRUE,
+    "VALIDATION: TCGA-BRCA PATIENT-LEVEL SIGNATURE, PAM50 SUBTYPE AND KM OS",
+    function() {
+      module_tcga_brca_survival_signature_validation(
+        tcga_dir = PATH_CONFIG$tcga_dir,
+        use_cached_query = TRUE
+      )
+      figure5_tcga_survival_signature_validation()
+    }
+  )
+}
+
 qc_issues <- run_qc_checks()
 
 # ==============================================================================
@@ -350,6 +374,8 @@ session_info_text <- c(
   paste("Cat ORA FDR:", PARAM_CONFIG$cat_ora_padj),
   paste("Drug minimum phase:", PARAM_CONFIG$drug_min_phase),
   paste("Step 5B enabled:", EXECUTION_CONFIG$run_step5b_probe_indications),
+  paste("TCGA-BRCA concordance validation enabled:", isTRUE(EXECUTION_CONFIG$run_validation_tcga_brca)),
+  paste("TCGA-BRCA patient-level signature validation enabled:", isTRUE(EXECUTION_CONFIG$run_validation_tcga_signature)),
   paste("Step 5B overwrote target_master:", PARAM_CONFIG$probe_overwrite_target_master),
   paste("Probe minimum phase:", PARAM_CONFIG$probe_min_phase),
   paste("Top N targets:", PARAM_CONFIG$top_n_targets),
@@ -390,7 +416,24 @@ cat("  • results/TOP_TARGETS_FORMATTED.csv\n")
 cat("  • results/TRANSLATIONAL_GAP_summary.csv\n")
 cat("  • results/TRANSLATIONAL_GAP_target_tiers.csv\n")
 cat("  • results/TRANSLATIONAL_GAP_clinical_leverage_counts.csv\n")
-cat("  • results/REPRODUCIBILITY_RECORD.txt\n\n")
+cat("  • results/REPRODUCIBILITY_RECORD.txt\n")
+
+if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_brca)) {
+  cat("  • results/TCGA_BRCA_core_gene_results.csv\n")
+  cat("  • results/TCGA_BRCA_concordance_summary.csv\n")
+  cat("  • results/FIG4_TCGA_A_core_concordance_dotplot.png\n")
+  cat("  • results/FIG4_TCGA_B_sigconc_barplot.png\n")
+}
+
+if (isTRUE(EXECUTION_CONFIG$run_validation_tcga_signature)) {
+  cat("  • results/SURVIVAL/TCGA_signature_dataset.csv\n")
+  cat("  • results/SURVIVAL/TCGA_signature_gene_overlap.csv\n")
+  cat("  • results/SURVIVAL/TCGA_KM_summary.csv\n")
+  cat("  • results/SURVIVAL/TCGA_subtype_score_association.csv\n")
+  cat("  • results/FIG5_panels/Figure5A_subtype_violin.png\n")
+  cat("  • results/FIG5_panels/Figure5B_KM.png\n")
+}
+cat("\n")
 
 cat("Pipeline finished at:", as.character(pipeline_end), "\n")
 cat("Total runtime (minutes):", round(as.numeric(pipeline_runtime), 2), "\n\n")
